@@ -51,21 +51,26 @@ async def list_groups(db: AsyncSession = Depends(get_db)):
 
     result = []
     for group in groups:
-        attendances = (await db.execute(
-            select(User.role)
+        attendance_rows = (await db.execute(
+            select(User.role, Attendance.part)
             .join(Attendance, Attendance.user_id == User.id)
             .where(Attendance.group_id == group.id)
             .where(Attendance.status == AttendanceStatus.attending)
-        )).scalars().all()
+        )).all()
 
-        admin_count = sum(1 for role in attendances if role in [RoleEnum.admin, RoleEnum.leader])
-        member_count = sum(1 for role in attendances if role == RoleEnum.member)
+        counts = {
+            PartEnum.FIRST.value: {"admin": 0, "member": 0},
+            PartEnum.SECOND.value: {"admin": 0, "member": 0},
+        }
+
+        for role, part in attendance_rows:
+            key = "admin" if role in [RoleEnum.admin, RoleEnum.leader] else "member"
+            counts[part.value][key] += 1
 
         result.append({
             "id": group.id,
             "date": group.date.isoformat(),
-            "admin_count": admin_count,
-            "member_count": member_count
+            "part_counts": counts,
         })
 
     return result
