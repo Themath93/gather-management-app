@@ -50,6 +50,13 @@ async function loadGroups() {
     const groups = await res.json();
     const ul = document.getElementById("group-list");
     ul.innerHTML = "";
+    if (groups.length === 0) {
+      const li = document.createElement("li");
+      li.className = "no-groups";
+      li.textContent = "생성된 모임이 없습니다.";
+      ul.appendChild(li);
+      return;
+    }
 
     const today = new Date().toISOString().slice(0, 10);
 

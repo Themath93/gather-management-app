@@ -76,6 +76,13 @@ main {
   background: #e2e8f0;
 }
 
+/* 빈 모임 안내 */
+.no-groups {
+  text-align: center;
+  padding: 1rem;
+  color: #666;
+}
+
 /* 조 편성 결과 */
 .team-grid {
   display: flex;
