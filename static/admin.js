@@ -130,6 +130,58 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // 📅 모임 생성 폼 바인딩
+  const bindGroupForm = () => {
+    const form = document.getElementById("group-form");
+    const resultEl = document.getElementById("group-result");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      try {
+        const res = await fetch("/api/v1/groups/create", {
+          method: "POST",
+          body: data,
+        });
+        if (res.ok) {
+          resultEl.textContent = "✅ 모임이 생성되었습니다.";
+          form.reset();
+          loadGroups();
+        } else {
+          const err = await res.json().catch(() => ({}));
+          resultEl.textContent = "❌ " + (err.detail || "생성 실패");
+        }
+      } catch (err) {
+        resultEl.textContent = "❌ 네트워크 오류";
+      }
+    });
+  };
+
+  // 📄 모임 목록 로딩
+  async function loadGroups() {
+    try {
+      const res = await fetch("/api/v1/groups/list");
+      const groups = await res.json();
+      const ul = document.getElementById("group-list");
+      ul.innerHTML = "";
+
+      groups.forEach(g => {
+        const li = document.createElement("li");
+        li.className = "group-item";
+        li.textContent = g.date;
+        li.dataset.groupId = g.id;
+        li.onclick = () => {
+          document.querySelectorAll("#group-list .group-item").forEach(el => el.classList.remove("selected"));
+          li.classList.add("selected");
+          document.getElementById("shuffle-group-id").value = g.id;
+          document.getElementById("selected-group-info").textContent = `선택된 모임: ${g.date}`;
+        };
+        ul.appendChild(li);
+      });
+    } catch (err) {
+      console.error("모임 목록 불러오기 실패", err);
+    }
+  }
+
   function showEditPopup(user) {
     const popup = document.createElement("div");
     popup.className = "popup-overlay";
@@ -181,5 +233,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // 초기 실행
   bindUserForm();
   bindUserListToggle();
+  bindGroupForm();
+  loadGroups();
   window.loadUsers = loadUsers;
+  window.loadGroups = loadGroups;
 });
