@@ -73,6 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const container = document.getElementById("user-list");
       container.innerHTML = "";
       const table = document.createElement("table");
+      table.className = "user-table";
       table.innerHTML = `
         <thead>
           <tr><th>이름</th><th>성별</th><th>이메일</th><th>권한</th><th>관심사</th><th>참석횟수</th><th>최근참석</th><th>가입일</th><th>수정</th></tr>
