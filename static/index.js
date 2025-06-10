@@ -11,7 +11,7 @@ window.addEventListener("DOMContentLoaded", () => {
   renderUserInfo();
   renderAdminLink();
   startClock();
-  loadGroups();
+  bindGroupListToggle();
 });
 
 function renderUserInfo() {
@@ -60,14 +60,17 @@ async function loadGroups() {
 
       li.innerHTML = `
         <p>📅 ${group.date}</p>
-        ${PART_LABELS.map(label => `
+        ${PART_LABELS.map(label => {
+            const enumKey = PART_LABEL_TO_ENUM[label];
+            const c = group.part_counts?.[enumKey] || { admin: 0, member: 0 };
+            return `
           <div class="part-section" data-part-label="${label}">
-            <strong>${label}</strong>
+            <strong>${label} - 운영진 ${c.admin}명 회원 ${c.member}명</strong>
             <span class="attend-msg" data-part-label="${label}">⏳ 상태 확인 중...</span><br/>
             <button class="attend-btn" data-part-label="${label}" ${isToday ? "disabled" : ""}>참석</button>
             <button class="absent-btn" data-part-label="${label}" ${isToday ? "disabled" : ""}>불참</button>
-          </div>
-        `).join("")}
+          </div>`;
+        }).join("")}
         <div class="team-toggle">
           <button class="toggle-team-btn" data-open="false">🧩 조 편성 보기</button>
           <div class="team-box" style="display:none;"></div>
@@ -193,4 +196,17 @@ async function getTeamHTML(groupId, groupDate) {
   return `<h4>🧩 ${groupDate} 조 편성 결과</h4>` +
          renderPart("📘 1부 조편성", part1) +
          renderPart("📙 2부 조편성", part2);
+}
+
+function bindGroupListToggle() {
+  const toggleBtn = document.getElementById("toggle-group-list");
+  const list = document.getElementById("group-list");
+  if (!toggleBtn || !list) return;
+  list.style.display = "none";
+  toggleBtn.onclick = () => {
+    const isHidden = list.style.display === "none";
+    list.style.display = isHidden ? "block" : "none";
+    toggleBtn.textContent = isHidden ? "접기" : "모임 불러오기";
+    if (isHidden) loadGroups();
+  };
 }

@@ -2,13 +2,13 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>소모임 메인</title>
+  <title>강서구 영어회화 모임 메인</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
   <header>
-    <h1>소모임 참여 현황</h1>
+    <h1>강서구 영어회화 모임 참여 현황</h1>
     <p id="user-info" class="user-info" aria-live="polite"></p>
     <p id="current-datetime" class="clock-display" aria-live="polite"></p>
     <div id="admin-link-container" class="admin-link"></div>
@@ -17,12 +17,13 @@
   <main>
     <section class="group-section" aria-label="모임 목록">
       <h2>📅 모임 목록</h2>
+      <button id="toggle-group-list">모임 불러오기</button>
       <ul id="group-list" class="group-list" role="list"></ul>
     </section>
   </main>
 
   <footer>
-    <p>© 2025 소모임 관리 서비스</p>
+    <p>© 2025 강서구 영어회화 모임</p>
   </footer>
 
   <!-- 🔽 스크립트는 DOM 뒤에 로드되도록 배치 -->

@@ -156,6 +156,19 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   };
 
+  const bindGroupListToggle = () => {
+    const toggleBtn = document.getElementById("toggle-group-list");
+    const list = document.getElementById("group-list");
+    if (!toggleBtn || !list) return;
+    list.style.display = "none";
+    toggleBtn.onclick = () => {
+      const isHidden = list.style.display === "none";
+      list.style.display = isHidden ? "block" : "none";
+      toggleBtn.textContent = isHidden ? "접기" : "모임 불러오기";
+      if (isHidden) loadGroups();
+    };
+  };
+
   // 📄 모임 목록 로딩
   async function loadGroups() {
     try {
@@ -165,9 +178,11 @@ document.addEventListener("DOMContentLoaded", () => {
       ul.innerHTML = "";
 
       groups.forEach(g => {
+        const first = g.part_counts?.first || { admin: 0, member: 0 };
+        const second = g.part_counts?.second || { admin: 0, member: 0 };
         const li = document.createElement("li");
         li.className = "group-item";
-        li.textContent = g.date;
+        li.innerHTML = `${g.date} - 1부 운영진 ${first.admin}명 회원 ${first.member}명, 2부 운영진 ${second.admin}명 회원 ${second.member}명`;
         li.dataset.groupId = g.id;
         li.onclick = () => {
           document.querySelectorAll("#group-list .group-item").forEach(el => el.classList.remove("selected"));
@@ -234,7 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
   bindUserForm();
   bindUserListToggle();
   bindGroupForm();
-  loadGroups();
+  bindGroupListToggle();
   window.loadUsers = loadUsers;
   window.loadGroups = loadGroups;
 });
