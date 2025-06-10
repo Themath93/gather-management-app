@@ -1,7 +1,6 @@
 from sqlalchemy import func, select
 from fastapi import APIRouter, Depends, HTTPException, Form, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.future import select
 from db.session import get_db
 from models.attendance import Attendance, AttendanceStatus
 from models.group import PartEnum

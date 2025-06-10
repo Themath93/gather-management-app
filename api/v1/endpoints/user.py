@@ -5,7 +5,6 @@ from db.session import get_db
 from models.user import User, RoleEnum, GenderEnum
 from models.group import Group
 from models.attendance import Attendance
-from sqlalchemy.future import select
 
 router = APIRouter()
 
