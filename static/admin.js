@@ -15,16 +15,19 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const bindUserForm = () => {
-    const toggleBtn = document.createElement("button");
-    toggleBtn.textContent = "👤 유저 추가 폼 열기/닫기";
+    const toggleBtn = document.getElementById("toggle-user-form");
+    const container = document.getElementById("user-form-container");
+
+    // 초기 상태는 닫힌 상태로 설정
+    container.style.display = "none";
+
     toggleBtn.onclick = () => {
-      const form = document.getElementById("user-form");
-      form.style.display = form.style.display === "none" ? "flex" : "none";
+      const isHidden = container.style.display === "none";
+      container.style.display = isHidden ? "block" : "none";
+      toggleBtn.textContent = isHidden ? "접기" : "열기";
     };
-    document.querySelector("section").prepend(toggleBtn);
 
     const form = document.getElementById("user-form");
-    form.style.display = "none";
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       if (!confirm("이 유저를 추가하시겠습니까?")) return;
