@@ -17,31 +17,46 @@ export function requireLogin() {
   }
   
   // 로그아웃 버튼 삽입 및 동작 바인딩
-  export function renderLogoutButton() {
-    const logoutBtn = document.createElement("button");
-    logoutBtn.textContent = "로그아웃";
+export function renderLogoutButton(includeHome = false) {
+  const container = document.createElement("div");
+  container.style.position = "fixed";
+  container.style.top = "1.5rem";
+  container.style.right = "1.5rem";
+  container.style.display = "flex";
+  container.style.gap = "0.5rem";
   
-    // 스타일 추가
-    logoutBtn.style.position = "fixed";
-    logoutBtn.style.top = "1.5rem";
-    logoutBtn.style.right = "1.5rem";
-    logoutBtn.style.padding = "0.5rem 1rem";
-    logoutBtn.style.fontSize = "0.95rem";
-    logoutBtn.style.border = "none";
-    logoutBtn.style.borderRadius = "8px";
-    logoutBtn.style.backgroundColor = "#2b6cb0";
-    logoutBtn.style.color = "white";
-    logoutBtn.style.cursor = "pointer";
-    logoutBtn.style.boxShadow = "0 2px 6px rgba(0, 0, 0, 0.1)";
-    logoutBtn.style.transition = "background-color 0.2s ease";
-  
-    logoutBtn.onmouseenter = () => logoutBtn.style.backgroundColor = "#2c5282";
-    logoutBtn.onmouseleave = () => logoutBtn.style.backgroundColor = "#2b6cb0";
-  
-    logoutBtn.onclick = () => {
-      localStorage.removeItem("currentUser");
-      window.location.href = "/login";
+  const baseBtnStyle = (btn) => {
+    btn.style.padding = "0.5rem 1rem";
+    btn.style.fontSize = "0.95rem";
+    btn.style.border = "none";
+    btn.style.borderRadius = "8px";
+    btn.style.backgroundColor = "#2b6cb0";
+    btn.style.color = "white";
+    btn.style.cursor = "pointer";
+    btn.style.boxShadow = "0 2px 6px rgba(0, 0, 0, 0.1)";
+    btn.style.transition = "background-color 0.2s ease";
+    btn.onmouseenter = () => btn.style.backgroundColor = "#2c5282";
+    btn.onmouseleave = () => btn.style.backgroundColor = "#2b6cb0";
+  };
+
+  if (includeHome) {
+    const homeBtn = document.createElement("button");
+    homeBtn.textContent = "메인 화면";
+    baseBtnStyle(homeBtn);
+    homeBtn.onclick = () => {
+      window.location.href = "/";
     };
-  
-    document.body.appendChild(logoutBtn);
+    container.appendChild(homeBtn);
   }
+
+  const logoutBtn = document.createElement("button");
+  logoutBtn.textContent = "로그아웃";
+  baseBtnStyle(logoutBtn);
+  logoutBtn.onclick = () => {
+    localStorage.removeItem("currentUser");
+    window.location.href = "/login";
+  };
+
+  container.appendChild(logoutBtn);
+  document.body.appendChild(container);
+}
