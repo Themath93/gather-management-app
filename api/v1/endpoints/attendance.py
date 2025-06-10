@@ -33,6 +33,23 @@ async def set_attendance(
     if not user or not group:
         raise HTTPException(status_code=404, detail="유저 또는 모임을 찾을 수 없습니다.")
 
+    # 특정 날짜에 이미 참석한 기록이 있는지 확인하는 헬퍼
+    async def already_attended(exclude_id: int | None = None) -> bool:
+        q = (
+            select(func.count())
+            .select_from(Attendance)
+            .join(Group, Attendance.group_id == Group.id)
+            .where(
+                Attendance.user_id == user_id,
+                Group.date == group.date,
+                Attendance.status == AttendanceStatus.attending,
+            )
+        )
+        if exclude_id is not None:
+            q = q.where(Attendance.id != exclude_id)
+        res = await db.execute(q)
+        return res.scalar_one() > 0
+
     # 출석 상태 변경 로직
     if record:
         previous_status = record.status
@@ -41,23 +58,25 @@ async def set_attendance(
         if previous_status != status:
             # 참석 ➡ 불참
             if previous_status == AttendanceStatus.attending and status == AttendanceStatus.absent:
-                user.attendance_count = max(0, (user.attendance_count or 1) - 1)
+                if not await already_attended(exclude_id=record.id):
+                    user.attendance_count = max(0, (user.attendance_count or 1) - 1)
 
-                # 최신 참석일 재계산
-                subq = (
-                    select(func.max(Group.date))
-                    .join(Attendance, Attendance.group_id == Group.id)
-                    .where(
-                        Attendance.user_id == user_id,
-                        Attendance.status == AttendanceStatus.attending
+                    # 최신 참석일 재계산
+                    subq = (
+                        select(func.max(Group.date))
+                        .join(Attendance, Attendance.group_id == Group.id)
+                        .where(
+                            Attendance.user_id == user_id,
+                            Attendance.status == AttendanceStatus.attending,
+                        )
                     )
-                )
-                result = await db.execute(subq)
-                user.last_attended = result.scalar_one_or_none()
+                    result = await db.execute(subq)
+                    user.last_attended = result.scalar_one_or_none()
 
             # 불참 ➡ 참석
             elif previous_status == AttendanceStatus.absent and status == AttendanceStatus.attending:
-                user.attendance_count = (user.attendance_count or 0) + 1
+                if not await already_attended():
+                    user.attendance_count = (user.attendance_count or 0) + 1
                 if not user.last_attended or group.date > user.last_attended:
                     user.last_attended = group.date
 
@@ -72,7 +91,8 @@ async def set_attendance(
         db.add(record)
 
         if status == AttendanceStatus.attending:
-            user.attendance_count = (user.attendance_count or 0) + 1
+            if not await already_attended():
+                user.attendance_count = (user.attendance_count or 0) + 1
             if not user.last_attended or group.date > user.last_attended:
                 user.last_attended = group.date
 

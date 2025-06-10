@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.session import get_db
 from models.user import User, RoleEnum, GenderEnum
 from models.group import Group
-from models.attendance import Attendance
+from models.attendance import Attendance, AttendanceStatus
 
 router = APIRouter()
 
@@ -50,10 +50,11 @@ async def get_users_detail(db: AsyncSession = Depends(get_db)):
     attendance_subquery = (
         select(
             Attendance.user_id,
-            func.count().label("total_attendance"),
+            func.count(func.distinct(Group.date)).label("total_attendance"),
             func.max(Group.date).label("last_attended_date"),
         )
         .join(Group, Group.id == Attendance.group_id)
+        .where(Attendance.status == AttendanceStatus.attending)
         .group_by(Attendance.user_id)
         .subquery()
     )
