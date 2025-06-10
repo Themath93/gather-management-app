@@ -12,6 +12,11 @@ window.addEventListener("DOMContentLoaded", () => {
   renderAdminLink();
   startClock();
   bindGroupListToggle();
+  loadGroups();
+  const list = document.getElementById("group-list");
+  if (list) list.style.display = "block";
+  const toggleBtn = document.getElementById("toggle-group-list");
+  if (toggleBtn) toggleBtn.textContent = "접기";
 });
 
 function renderUserInfo() {
@@ -202,7 +207,7 @@ function bindGroupListToggle() {
   const toggleBtn = document.getElementById("toggle-group-list");
   const list = document.getElementById("group-list");
   if (!toggleBtn || !list) return;
-  list.style.display = "none";
+  // 목록을 기본으로 보여주고 필요 시 새로고침용으로 사용
   toggleBtn.onclick = () => {
     const isHidden = list.style.display === "none";
     list.style.display = isHidden ? "block" : "none";
