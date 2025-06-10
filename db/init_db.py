@@ -1,4 +1,4 @@
-# backend/app/db/init_db.py
+# db/init_db.py
 import asyncio
 from db.session import engine
 from models import user, group, attendance
