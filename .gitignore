@@ -1,0 +1,36 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*.sqlite3
+*.db
+*.log
+*.env
+*.egg-info/
+
+# VSCode
+.vscode/
+
+# macOS
+.DS_Store
+
+# PyCharm
+.idea/
+
+# Node/npm artifacts (if any)
+node_modules/
+
+# Byte-compiled
+*.pyo
+*.pyd
+
+# Optional: venv
+venv/
+.env
+
+# FastAPI DB
+app.db
+
+# Static builds (if you export later)
+dist/
+build/

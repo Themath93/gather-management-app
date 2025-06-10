@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>관리자 페이지</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="/static/style.css" />
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 1rem;
+      padding-bottom: 3rem;
+      background-color: #f9f9f9;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    section {
+      background: white;
+      padding: 1.2rem;
+      border-radius: 10px;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      margin-bottom: 0.8rem;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    input, select, button {
+      padding: 0.6rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      background-color: #2b6cb0;
+      color: white;
+      border: none;
+    }
+
+    button:hover {
+      background-color: #2c5282;
+    }
+
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    ul li {
+      padding: 0.4rem 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    @media (max-width: 768px) {
+      main {
+        padding: 1rem;
+      }
+    
+      table {
+        display: none; /* 모바일에서 테이블 숨김 */
+      }
+    
+      .bubble {
+        min-width: auto;
+        padding: 0.4rem 0.8rem;
+      }
+    
+      .team-row {
+        flex-direction: column;
+      }
+    
+      .group-item.selected {
+        background-color: #e6f7ff;
+        font-weight: bold;
+        border-left: 4px solid #1890ff;
+      }
+    
+      /* ✅ 모바일 유저 카드 */
+      .user-card-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+    
+      .user-card {
+        background: #fff;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+        font-size: 0.9rem;
+      }
+    
+      .user-card h4 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+      }
+    
+      .user-card .row {
+        margin-bottom: 0.2rem;
+      }
+    
+      .user-card .edit-button {
+        margin-top: 0.6rem;
+        padding: 0.4rem 0.8rem;
+        background: #2b6cb0;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }}
+  </style>
+</head>
+<body>
+  <script type="module">
+    import { requireLogin, requireRole, renderLogoutButton } from "/static/auth.js";
+    const user = requireLogin();
+    requireRole(["모임장", "운영진"]);
+    renderLogoutButton();
+  </script>
+
+  <header>
+    <h1>소모임 관리자 페이지</h1>
+  </header>
+
+  <main>
+    <section>
+      <h2>👤 유저 추가</h2>
+      <button id="toggle-user-form">열기</button>
+      <div id="user-form-container" style="display:none;">
+        <form id="user-form">
+          <input type="text" placeholder="이름" name="username" required />
+          <input type="password" placeholder="비밀번호" name="password" required />
+          <input type="email" placeholder="이메일" name="email" required />
+          <select name="role">
+            <option value="회원">회원</option>
+            <option value="운영진">운영진</option>
+            <option value="모임장">모임장</option>
+          </select>
+          <select name="gender">
+            <option value="남">남</option>
+            <option value="여">여</option>
+          </select>
+          <input type="text" placeholder="관심사 (쉼표로 구분)" name="interests" />
+          <button type="submit">➕ 추가</button>
+        </form>
+        <p id="user-add-result"></p>
+      </div>
+    </section>
+
+    <section>
+      <h2>📋 회원 목록</h2>
+      <button id="toggle-user-list">불러오기</button>
+      <div id="user-list" style="display: none;"></div>
+    </section>
+    <!-- <section>
+      <h2>📋 회원 목록</h2>
+      <button id="toggle-user-list">불러오기</button>
+      <div id="user-table-container" style="display: none;">
+        <table id="user-table" border="1" cellspacing="0" cellpadding="6" style="width:100%; font-size:0.9rem;">
+          <thead>
+            <tr>
+              <th>이름</th>
+              <th>성별</th>
+              <th>이메일</th>
+              <th>권한</th>
+              <th>관심사</th>
+              <th>참석 횟수</th>
+              <th>최근 참석일</th>
+              <th>가입일</th>
+              <th>수정</th>
+            </tr>
+          </thead>
+          <tbody id="user-table-body"></tbody>
+        </table>
+        <div style="margin-top: 0.5rem;">
+          <button id="prev-user-page">이전</button>
+          <span id="user-page-info"></span>
+          <button id="next-user-page">다음</button>
+        </div>
+      </div>
+    </section> -->
+
+    <section>
+      <h2>📅 모임(그룹) 생성</h2>
+      <form id="group-form">
+        <input type="date" name="date" required />
+        <button type="submit">➕ 모임 생성</button>
+      </form>
+      <p id="group-result"></p>
+    </section>
+
+    <section>
+      <h2>🗓️ 모임 목록</h2>
+      <button onclick="loadGroups()">모임 불러오기</button>
+      <ul id="group-list"></ul>
+    </section>
+
+    <section style="margin-top: 2rem;">
+      <h2>🔀 조 편성 셔플</h2>
+      <p id="selected-group-info">선택된 모임이 없습니다.</p>
+      <p id="attendee-summary" style="font-size: 0.9rem; color: #555;"></p>
+      <form id="shuffle-form">
+        <input type="hidden" name="group_id" id="shuffle-group-id" />
+        <select name="part" required>
+          <option value="1부">1부</option>
+          <option value="2부">2부</option>
+        </select>
+        <input type="number" name="team_size" placeholder="조당 인원 수" required />
+        <button type="submit">셔플 실행</button>
+      </form>
+      <p id="shuffle-result"></p>
+    </section>
+  </main>
+
+  <script src="/static/admin.js"></script>
+</body>
+</html>
