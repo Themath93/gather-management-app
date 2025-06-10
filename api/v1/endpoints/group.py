@@ -14,13 +14,6 @@ from models.attendance import Attendance, AttendanceStatus
 from models.group import Group, Team, TeamUser, PartEnum
 from models.user import User, RoleEnum, GenderEnum
 
-# 로컬 모듈
-from db.session import get_db
-from models.attendance import Attendance, AttendanceStatus
-from models.group import Group, Team, TeamUser, PartEnum
-from models.user import User
-from models.user import RoleEnum
-
 router = APIRouter()
 
 @router.post("/create")
@@ -194,7 +187,10 @@ async def shuffle_teams(group_id: int, db: AsyncSession = Depends(get_db)):
     balanced_distribute(females2, part2_teams)
 
     # 7. 저장 (1부/2부 모두)
-    for part, team_users in [(PartEnum.part1, part1_teams), (PartEnum.part2, part2_teams)]:
+    for part, team_users in [
+        (PartEnum.FIRST, part1_teams),
+        (PartEnum.SECOND, part2_teams),
+    ]:
         for i, members in enumerate(team_users):
             team = Team(group_id=group_id, part=part)
             db.add(team)
