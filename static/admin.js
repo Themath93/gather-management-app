@@ -1,6 +1,7 @@
 // admin.js (유저 추가/수정 + 목록 토글 + 페이지네이션 포함)
 
 const PART_ENUM_TO_LABEL = { FIRST: "1부", SECOND: "2부" };
+const PART_LABEL_TO_ENUM = { "1부": "FIRST", "2부": "SECOND" };
 const USERS_PER_PAGE = 20;
 let currentPage = 1;
 
@@ -245,11 +246,62 @@ document.addEventListener("DOMContentLoaded", () => {
     popup.querySelector("#cancel-edit").onclick = () => popup.remove();
   }
 
+  const bindShuffleForm = () => {
+    const form = document.getElementById("shuffle-form");
+    const resultEl = document.getElementById("shuffle-result");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const groupId = document.getElementById("shuffle-group-id").value;
+      const partLabel = form.part.value;
+      const partEnum = PART_LABEL_TO_ENUM[partLabel] || partLabel;
+      const teamSize = parseInt(form.team_size.value, 10);
+
+      if (!groupId) {
+        alert("먼저 모임을 선택해주세요.");
+        return;
+      }
+      if (!teamSize || teamSize <= 0) {
+        alert("조당 인원 수를 올바르게 입력해주세요.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/v1/groups/${groupId}/teams`);
+        const teams = await res.json();
+        const exists = teams.some(t => t.part === partEnum);
+        const msg = exists
+          ? `${partLabel}의 기존 조편성이 있습니다. 다시 셔플하시겠습니까?`
+          : `${partLabel}을 ${teamSize}명씩 셔플하시겠습니까?`;
+        if (!confirm(msg)) return;
+      } catch (err) {
+        console.warn("팀 확인 실패", err);
+      }
+
+      const fd = new FormData();
+      fd.append("part", partEnum);
+      fd.append("team_size", teamSize);
+
+      const res = await fetch(`/api/v1/groups/${groupId}/shuffle`, {
+        method: "POST",
+        body: fd,
+      });
+      if (res.ok) {
+        const data = await res.json();
+        resultEl.textContent = `✅ ${data.message}`;
+        loadGroups();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        resultEl.textContent = `❌ ${err.detail || "실패"}`;
+      }
+    });
+  };
+
   // 초기 실행
   bindUserForm();
   bindUserListToggle();
   bindGroupForm();
   bindGroupListToggle();
+  bindShuffleForm();
   window.loadUsers = loadUsers;
   window.loadGroups = loadGroups;
 });
