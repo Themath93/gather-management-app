@@ -19,7 +19,15 @@ class Team(Base):
     __tablename__ = "teams"
     id = Column(Integer, primary_key=True, index=True)
     group_id = Column(Integer, ForeignKey("groups.id"))
-    part = Column(Enum(PartEnum), nullable=False)  # 1부 / 2부
+    # Store enum values ("first"/"second") instead of names ("FIRST"/"SECOND")
+    part = Column(
+        Enum(
+            PartEnum,
+            values_callable=lambda x: [e.value for e in x],
+            native_enum=False,
+        ),
+        nullable=False,
+    )  # 1부 / 2부
     group = relationship("Group", back_populates="teams")
     members = relationship("TeamUser", back_populates="team", cascade="all, delete-orphan")
 

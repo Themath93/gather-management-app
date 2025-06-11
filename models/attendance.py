@@ -16,7 +16,14 @@ class Attendance(Base):
     id = Column(Integer, primary_key=True)
     group_id = Column(Integer, ForeignKey("groups.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
-    part = Column(Enum(PartEnum), nullable=False)  # ✅ 1부/2부 구분 필드 추가
+    part = Column(
+        Enum(
+            PartEnum,
+            values_callable=lambda x: [e.value for e in x],
+            native_enum=False,
+        ),
+        nullable=False,
+    )  # ✅ 1부/2부 구분 필드 추가 - store enum values
     status = Column(Enum(AttendanceStatus), nullable=False)
 
     __table_args__ = (
