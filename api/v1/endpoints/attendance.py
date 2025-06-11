@@ -75,10 +75,15 @@ async def set_attendance(
 
             # 불참 ➡ 참석
             elif previous_status == AttendanceStatus.absent and status == AttendanceStatus.attending:
+                
+
                 if not await already_attended():
                     user.attendance_count = (user.attendance_count or 0) + 1
-                if not user.last_attended or group.date > user.last_attended:
+
+
+                if not user.last_attended or group.date > user.last_attended.date():
                     user.last_attended = group.date
+                
 
     else:
         # 신규 등록
