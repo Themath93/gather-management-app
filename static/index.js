@@ -1,9 +1,9 @@
 // 📦 사용자 정보 로딩
 const user = JSON.parse(localStorage.getItem("currentUser"));
 
-// 🎛️ Part enum ↔ label 매핑 (API는 "first", "second" 사용)
-const PART_LABEL_TO_ENUM = { "1부": "first", "2부": "second" };
-const PART_ENUM_TO_LABEL = { first: "1부", second: "2부" };
+// 🎛️ Part enum ↔ label 매핑 (API는 "FIRST", "SECOND" 사용)
+const PART_LABEL_TO_ENUM = { "1부": "FIRST", "2부": "SECOND" };
+const PART_ENUM_TO_LABEL = { FIRST: "1부", SECOND: "2부" };
 const PART_LABELS = Object.keys(PART_LABEL_TO_ENUM);
 
 // 📌 페이지 초기화
@@ -179,8 +179,8 @@ async function getTeamHTML(groupId, groupDate) {
     console.warn("내 조 정보 로딩 실패", e);
   }
 
-  const part1 = teams.filter(t => t.part === "first");
-  const part2 = teams.filter(t => t.part === "second");
+  const part1 = teams.filter(t => t.part === "FIRST");
+  const part2 = teams.filter(t => t.part === "SECOND");
 
   const renderPart = (titleLabel, list) => {
     let html = `<h4 style="margin-top:2rem;">${titleLabel}</h4><div class="team-grid">`;

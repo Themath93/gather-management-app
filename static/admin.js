@@ -1,6 +1,6 @@
 // admin.js (유저 추가/수정 + 목록 토글 + 페이지네이션 포함)
 
-const PART_ENUM_TO_LABEL = { first: "1부", second: "2부" };
+const PART_ENUM_TO_LABEL = { FIRST: "1부", SECOND: "2부" };
 const USERS_PER_PAGE = 20;
 let currentPage = 1;
 
@@ -178,8 +178,8 @@ document.addEventListener("DOMContentLoaded", () => {
       ul.innerHTML = "";
 
       groups.forEach(g => {
-        const first = g.part_counts?.first || { admin: 0, member: 0 };
-        const second = g.part_counts?.second || { admin: 0, member: 0 };
+        const first = g.part_counts?.FIRST || { admin: 0, member: 0 };
+        const second = g.part_counts?.SECOND || { admin: 0, member: 0 };
         const li = document.createElement("li");
         li.className = "group-item";
         li.innerHTML = `${g.date} - 1부 운영진 ${first.admin}명 회원 ${first.member}명, 2부 운영진 ${second.admin}명 회원 ${second.member}명`;
