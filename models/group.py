@@ -6,8 +6,8 @@ from models.base import Base
 from models.user import User
 
 class PartEnum(str, enum.Enum):
-    FIRST = "first"   # or "1"
-    SECOND = "second" # or "2"
+    FIRST = "FIRST"   # or "1"
+    SECOND = "SECOND" # or "2"
 
 class Group(Base):
     __tablename__ = "groups"
