@@ -122,12 +122,33 @@ async def get_group_teams(group_id: int, db: AsyncSession = Depends(get_db)):
     ]
     
 @router.post("/{group_id}/shuffle")
-async def shuffle_teams(group_id: int, db: AsyncSession = Depends(get_db)):
-    # 1. 참석자만 가져오기
+async def shuffle_teams(
+    group_id: int,
+    part: str = Form(...),
+    team_size: int = Form(...),
+    db: AsyncSession = Depends(get_db),
+):
+    if team_size <= 0:
+        raise HTTPException(status_code=400, detail="조당 인원 수가 올바르지 않습니다.")
+
+    part_map = {
+        "1부": PartEnum.FIRST,
+        "FIRST": PartEnum.FIRST,
+        "first": PartEnum.FIRST,
+        "2부": PartEnum.SECOND,
+        "SECOND": PartEnum.SECOND,
+        "second": PartEnum.SECOND,
+    }
+    part_enum = part_map.get(part)
+    if part_enum is None:
+        raise HTTPException(status_code=400, detail="부 정보가 올바르지 않습니다.")
+
+    # 1. 참석자만 가져오기 (선택한 부)
     result = await db.execute(
         select(User)
         .join(Attendance, Attendance.user_id == User.id)
         .where(Attendance.group_id == group_id)
+        .where(Attendance.part == part_enum)
         .where(Attendance.status == AttendanceStatus.attending)
     )
     users = result.scalars().all()
@@ -141,69 +162,43 @@ async def shuffle_teams(group_id: int, db: AsyncSession = Depends(get_db)):
 
     # 3. 운영진 이상 = 조장 후보
     leaders = [u for u in users if u.role in [RoleEnum.leader, RoleEnum.admin]]
-    normal_users = [u for u in users if u not in leaders]
 
-    # 4. 조 수 결정 (대략 5~6명 기준)
+    # 4. 조 수 결정 (입력 값 기반)
     total_count = len(users)
-    team_count = max(1, total_count // 6)
+    team_count = max(1, (total_count + team_size - 1) // team_size)
 
-    # 5. 기존 조 제거
-    await db.execute(delete(TeamUser).where(TeamUser.team_id.in_(
-        select(Team.id).where(Team.group_id == group_id)
-    )))
-    await db.execute(delete(Team).where(Team.group_id == group_id))
+    # 5. 기존 조 제거 (해당 부만)
+    team_ids_subq = select(Team.id).where(Team.group_id == group_id, Team.part == part_enum)
+    await db.execute(delete(TeamUser).where(TeamUser.team_id.in_(team_ids_subq)))
+    await db.execute(delete(Team).where(Team.group_id == group_id, Team.part == part_enum))
 
-    # 6. 1부 조 편성
-    part1_teams = [[] for _ in range(team_count)]
-    part2_teams = [[] for _ in range(team_count)]
+    # 6. 팀 목록 준비
+    teams = [[] for _ in range(team_count)]
 
-    # 남녀 균형 분배
     def balanced_distribute(members, targets):
         random.shuffle(members)
         for i, member in enumerate(members):
             targets[i % len(targets)].append(member)
 
-    balanced_distribute(males, part1_teams)
-    balanced_distribute(females, part1_teams)
+    balanced_distribute(males, teams)
+    balanced_distribute(females, teams)
 
-    # 조장 배정
-    part1_leaders = []
+    team_leaders = []
     for i in range(team_count):
         if i < len(leaders):
-            part1_teams[i].insert(0, leaders[i])
-            part1_leaders.append(leaders[i])
+            teams[i].insert(0, leaders[i])
+            team_leaders.append(leaders[i])
         else:
-            random.shuffle(part1_teams[i])
-            selected = part1_teams[i][0]
-            part1_leaders.append(selected)
+            random.shuffle(teams[i])
+            team_leaders.append(teams[i][0])
 
-    # 2부는 같은 조장으로 시작
-    for i in range(team_count):
-        part2_teams[i].append(part1_leaders[i])
-
-    # 나머지 인원 분배 (조장 제외)
-    part1_assigned = set(u.id for team in part1_teams for u in team)
-    remaining_users = [u for u in users if u.id not in part1_assigned]
-
-    males2 = [u for u in remaining_users if u.gender == GenderEnum.male]
-    females2 = [u for u in remaining_users if u.gender == GenderEnum.female]
-
-    balanced_distribute(males2, part2_teams)
-    balanced_distribute(females2, part2_teams)
-
-    # 7. 저장 (1부/2부 모두)
-    for part, team_users in [
-        (PartEnum.FIRST, part1_teams),
-        (PartEnum.SECOND, part2_teams),
-    ]:
-        for i, members in enumerate(team_users):
-            team = Team(group_id=group_id, part=part)
-            db.add(team)
-            await db.flush()
-
-            for user in members:
-                is_leader = (user.id == part1_leaders[i].id)
-                db.add(TeamUser(team_id=team.id, user_id=user.id, is_leader=is_leader))
+    # 7. 저장
+    for i, members in enumerate(teams):
+        team = Team(group_id=group_id, part=part_enum)
+        db.add(team)
+        await db.flush()
+        for user in members:
+            db.add(TeamUser(team_id=team.id, user_id=user.id, is_leader=(user.id == team_leaders[i].id)))
 
     await db.commit()
     return {"message": "조 편성이 완료되었습니다.", "조 수": team_count, "총원": total_count}
