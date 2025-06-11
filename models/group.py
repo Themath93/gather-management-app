@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Date, ForeignKey, Enum, Boolean
+from sqlalchemy import Column, Integer, Date, ForeignKey, Enum, Boolean, UniqueConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
 import enum
@@ -36,7 +36,22 @@ class TeamUser(Base):
     id = Column(Integer, primary_key=True)
     team_id = Column(Integer, ForeignKey("teams.id"))
     user_id = Column(Integer, ForeignKey("users.id"))
+    # 중복 배정을 방지하기 위해 그룹과 부 정보를 명시적으로 저장
+    group_id = Column(Integer, nullable=False)
+    part = Column(
+        Enum(
+            PartEnum,
+            values_callable=lambda x: [e.value for e in x],
+            native_enum=False,
+        ),
+        nullable=False,
+    )
     is_leader = Column(Boolean, default=False)
+
+    __table_args__ = (
+        # 한 유저가 같은 부에서 두 개 이상의 팀에 속할 수 없도록 제한
+        UniqueConstraint("group_id", "part", "user_id", name="_group_part_user_uc"),
+    )
 
     team = relationship("Team", back_populates="members")
     user = relationship("User")
