@@ -113,10 +113,13 @@ async def get_group_teams(group_id: int, db: AsyncSession = Depends(get_db)):
             "part": team.part,
             "members": [
                 {
+                    "id": member.user.id,
                     "username": member.user.username,
-                    "is_leader": member.is_leader
-                } for member in team.members
-            ]
+                    "role": member.user.role,
+                    "is_leader": member.is_leader,
+                }
+                for member in team.members
+            ],
         }
         for team in teams
     ]
@@ -165,7 +168,8 @@ async def shuffle_teams(
 
     # 4. 조 수 결정 (입력 값 기반)
     total_count = len(users)
-    team_count = max(1, (total_count + team_size - 1) // team_size)
+    # 모든 조가 최소 team_size명을 갖도록 team 수 계산
+    team_count = max(1, total_count // team_size)
 
     # 5. 기존 조 제거 (해당 부만)
     team_ids_subq = select(Team.id).where(Team.group_id == group_id, Team.part == part_enum)
@@ -175,22 +179,36 @@ async def shuffle_teams(
     # 6. 팀 목록 준비
     teams = [[] for _ in range(team_count)]
 
-    def balanced_distribute(members, targets):
-        random.shuffle(members)
-        for i, member in enumerate(members):
-            targets[i % len(targets)].append(member)
+    # 랜덤 섞기
+    random.shuffle(users)
 
-    balanced_distribute(males, teams)
-    balanced_distribute(females, teams)
+    # 팀당 최소 인원만큼 배정하고 남은 인원은 앞에서부터 한 명씩 추가
+    remaining_users = users.copy()
+    random.shuffle(leaders)
 
-    team_leaders = []
     for i in range(team_count):
-        if i < len(leaders):
-            teams[i].insert(0, leaders[i])
-            team_leaders.append(leaders[i])
-        else:
-            random.shuffle(teams[i])
-            team_leaders.append(teams[i][0])
+        if leaders:
+            leader = leaders.pop(0)
+            teams[i].append(leader)
+            if leader in remaining_users:
+                remaining_users.remove(leader)
+
+    base_size = team_size
+    extra = total_count - team_count * team_size
+
+    for idx in range(team_count):
+        target = base_size + (1 if idx < extra else 0)
+        while len(teams[idx]) < target and remaining_users:
+            teams[idx].append(remaining_users.pop())
+
+    # 남은 인원 (이론상 없지만 안전하게 처리)
+    tidx = 0
+    while remaining_users:
+        teams[tidx % team_count].append(remaining_users.pop())
+        tidx += 1
+
+    # 팀 리더 기록 (첫 번째 멤버가 리더)
+    team_leaders = [team[0] for team in teams]
 
     # 7. 저장
     for i, members in enumerate(teams):

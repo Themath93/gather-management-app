@@ -195,7 +195,8 @@ async function getTeamHTML(groupId, groupDate) {
         html += `<strong>${partLabel} ${teamNumber}조${isMine ? " ⭐" : ""}</strong>`;
         html += `<div class="seats">`;
         team.members.forEach(m => {
-          html += `<div class="bubble${m.is_leader ? " leader" : ""}${m.role === "운영진" ? " admin" : ""}${m.id === user.id ? " me" : ""}">${m.username}</div>`;
+          const adminLabel = ["운영진", "모임장"].includes(m.role) ? " (운영)" : "";
+          html += `<div class="bubble${m.is_leader ? " leader" : ""}${m.role === "운영진" || m.role === "모임장" ? " admin" : ""}${m.id === user.id ? " me" : ""}">${m.username}${adminLabel}</div>`;
         });
         html += `</div></div>`;
       });
