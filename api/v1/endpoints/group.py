@@ -216,7 +216,15 @@ async def shuffle_teams(
         db.add(team)
         await db.flush()
         for user in members:
-            db.add(TeamUser(team_id=team.id, user_id=user.id, is_leader=(user.id == team_leaders[i].id)))
+            db.add(
+                TeamUser(
+                    team_id=team.id,
+                    user_id=user.id,
+                    group_id=group_id,
+                    part=part_enum,
+                    is_leader=(user.id == team_leaders[i].id),
+                )
+            )
 
     await db.commit()
     return {"message": "조 편성이 완료되었습니다.", "조 수": team_count, "총원": total_count}
