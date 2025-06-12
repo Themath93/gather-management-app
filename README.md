@@ -35,10 +35,13 @@ main.py             FastAPI application entrypoint
 2. **Initialise the database**
 
    ```bash
-   python db/init_db.py
+   python db/init_db.py --reset
    # (Optional) populate with sample users
    python db/seed_users.py
    ```
+
+   If you update the models and encounter errors like `no column named group_id`,
+   rerun the initialisation with the `--reset` flag to recreate all tables.
 
 3. **Run the application**
 
