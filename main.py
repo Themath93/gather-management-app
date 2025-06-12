@@ -4,9 +4,15 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
+from core.logging_setup import setup_logging
+from core.middleware import LoggingMiddleware
+
 from api.v1.router import api_router
 
+setup_logging()
+
 app = FastAPI()
+app.add_middleware(LoggingMiddleware)
 app.include_router(api_router, prefix="/api/v1")
 
 static_dir = os.path.join(os.path.dirname(__file__), "static")
