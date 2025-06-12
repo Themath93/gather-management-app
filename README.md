@@ -14,7 +14,7 @@ This project is a simple attendance and group management service built with **Fa
 
 ```
 api/                FastAPI routers and endpoints
-core/               configuration files (currently empty)
+core/               application configuration and middleware (e.g. logging)
 db/                 database session and initialisation scripts
 models/             SQLAlchemy model definitions
 services/           service layer (placeholder)
@@ -69,4 +69,5 @@ They cover authentication and run against an in-memory SQLite database.
 
 - The application stores data in `app.db` in the project root when running locally.
 - Static files are served from the `static/` directory.
+- Logs are written to `app.log` and rotated automatically.
 
