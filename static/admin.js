@@ -4,6 +4,7 @@ const PART_ENUM_TO_LABEL = { FIRST: "1부", SECOND: "2부" };
 const PART_LABEL_TO_ENUM = { "1부": "FIRST", "2부": "SECOND" };
 const USERS_PER_PAGE = 20;
 let currentPage = 1;
+let currentSearch = "";
 
 // ✅ DOM 로드 시 실행
 
@@ -63,12 +64,23 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   };
 
-  async function loadUsers(page = 1) {
+  const bindUserSearch = () => {
+    const input = document.getElementById("user-search");
+    if (!input) return;
+    input.addEventListener("input", () => loadUsers(1, input.value.trim()));
+  };
+
+  async function loadUsers(page = 1, search = currentSearch) {
     try {
+      currentSearch = search || "";
       const res = await fetch("/api/v1/users/get_users_detail");
       const users = await res.json();
+      const filtered = users.filter(u =>
+        u.username.toLowerCase().includes(currentSearch.toLowerCase()) ||
+        u.email.toLowerCase().includes(currentSearch.toLowerCase())
+      );
       const start = (page - 1) * USERS_PER_PAGE;
-      const paginated = users.slice(start, start + USERS_PER_PAGE);
+      const paginated = filtered.slice(start, start + USERS_PER_PAGE);
       currentPage = page;
 
       const container = document.getElementById("user-list");
@@ -100,8 +112,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       container.appendChild(table);
-      renderPagination(users.length, page);
-      bindEditButtons(users);
+      renderPagination(filtered.length, page);
+      bindEditButtons(filtered);
     } catch (err) {
       console.error("유저 목록 불러오기 실패:", err);
     }
@@ -116,7 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const btn = document.createElement("button");
       btn.textContent = i;
       btn.disabled = i === current;
-      btn.onclick = () => loadUsers(i);
+      btn.onclick = () => loadUsers(i, currentSearch);
       nav.appendChild(btn);
     }
     container.appendChild(nav);
@@ -237,7 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (res.ok) {
         alert("수정 완료");
         popup.remove();
-        loadUsers(currentPage);
+        loadUsers(currentPage, currentSearch);
       } else {
         const err = await res.json();
         alert("실패: " + (err.detail || "오류"));
@@ -299,6 +311,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 초기 실행
   bindUserForm();
   bindUserListToggle();
+  bindUserSearch();
   bindGroupForm();
   bindGroupListToggle();
   bindShuffleForm();

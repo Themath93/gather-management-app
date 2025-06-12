@@ -10,7 +10,7 @@
       font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
       margin: 0;
       padding-bottom: 3rem;
-      background: linear-gradient(135deg, var(--color-bg), #fff);
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
     }
 
     header {
@@ -175,6 +175,7 @@
     <section>
       <h2>📋 회원 목록</h2>
       <button id="toggle-user-list">불러오기</button>
+      <input type="text" id="user-search" placeholder="이름 또는 이메일 검색" style="margin-top:0.5rem" />
       <div id="user-list" style="display: none;"></div>
     </section>
     <!-- <section>
