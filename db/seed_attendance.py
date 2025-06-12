@@ -38,7 +38,7 @@ async def seed_attendance(group_id: int, admin_count: int, member_count: int, db
         )
         db.add(attendance)
         user.attendance_count = (user.attendance_count or 0) + 1
-        if not user.last_attended or group.date > user.last_attended:
+        if not user.last_attended or group.date > user.last_attended.date():
             user.last_attended = group.date
 
     await db.commit()
@@ -48,7 +48,7 @@ async def seed_attendance(group_id: int, admin_count: int, member_count: int, db
 
 async def main():
     async with AsyncSessionLocal() as db:
-        await seed_attendance(group_id=1, admin_count=2, member_count=5, db=db)
+        await seed_attendance(group_id=1, admin_count=5, member_count=40, db=db)
 
 if __name__ == "__main__":
     asyncio.run(main())

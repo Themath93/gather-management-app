@@ -98,9 +98,8 @@ async def set_attendance(
         if status == AttendanceStatus.attending:
             if not await already_attended():
                 user.attendance_count = (user.attendance_count or 0) + 1
-            if not user.last_attended or group.date > user.last_attended:
+            if not user.last_attended or group.date > user.last_attended.date():
                 user.last_attended = group.date
-
     await db.commit()
     return {"message": "출석 상태가 저장되었습니다."}
 
