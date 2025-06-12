@@ -94,6 +94,7 @@ async function loadGroups() {
           const partLabel = btn.dataset.partLabel;
           const apiPart = PART_LABEL_TO_ENUM[partLabel];
           const status = btn.classList.contains("attend-btn") ? "참석" : "불참";
+          if (!confirm(`${partLabel}에 ${status}하시겠습니까?`)) return;
           const msgElem = li.querySelector(`.attend-msg[data-part-label="${partLabel}"]`);
           await setAttendance(group.id, apiPart, status, msgElem);
         });

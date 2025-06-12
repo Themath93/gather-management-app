@@ -7,15 +7,18 @@
   <link rel="stylesheet" href="/static/style.css" />
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
       margin: 0;
       padding-bottom: 3rem;
-      background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
+      background: linear-gradient(135deg, var(--color-bg), #fff);
     }
 
     header {
       text-align: center;
       padding: 1.5rem 0;
+      background: linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
+      color: var(--color-light);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     main {
@@ -52,14 +55,14 @@
     }
 
     button {
-      background-color: #2b6cb0;
-      color: white;
+      background-color: var(--color-primary);
+      color: var(--color-light);
       border: none;
       cursor: pointer;
     }
 
     button:hover {
-      background-color: #2c5282;
+      background-color: var(--color-primary-dark);
     }
 
     ul {
