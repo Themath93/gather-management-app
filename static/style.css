@@ -91,6 +91,18 @@ button:active {
   font-size: 0.95rem;
 }
 
+.days-left {
+  margin-left: 0.5rem;
+}
+.days-warning {
+  color: orange;
+}
+.days-critical {
+  color: red;
+  font-weight: bold;
+  font-style: italic;
+}
+
 .button-group {
   margin-top: 0.5rem;
   display: flex;
