@@ -5,6 +5,7 @@ const user = JSON.parse(localStorage.getItem("currentUser"));
 const PART_LABEL_TO_ENUM = { "1부": "FIRST", "2부": "SECOND" };
 const PART_ENUM_TO_LABEL = { FIRST: "1부", SECOND: "2부" };
 const PART_LABELS = Object.keys(PART_LABEL_TO_ENUM);
+let allGroups = [];
 
 // 📌 페이지 초기화
 window.addEventListener("DOMContentLoaded", () => {
@@ -12,6 +13,7 @@ window.addEventListener("DOMContentLoaded", () => {
   renderAdminLink();
   startClock();
   bindGroupListToggle();
+  bindGroupSearch();
   loadGroups();
   const list = document.getElementById("group-list");
   if (list) list.style.display = "block";
@@ -52,26 +54,37 @@ function startClock() {
 async function loadGroups() {
   try {
     const res = await fetch("/api/v1/groups/list");
-    const groups = await res.json();
-    const ul = document.getElementById("group-list");
-    ul.innerHTML = "";
-    if (groups.length === 0) {
-      const li = document.createElement("li");
-      li.className = "no-groups";
-      li.textContent = "생성된 모임이 없습니다.";
-      ul.appendChild(li);
-      return;
-    }
+    allGroups = await res.json();
+    renderGroups(allGroups);
+  } catch (e) {
+    console.error("모임 목록 로딩 실패", e);
+  }
+}
 
-    const today = new Date().toISOString().slice(0, 10);
+function renderGroups(groups) {
+  const ul = document.getElementById("group-list");
+  ul.innerHTML = "";
+  if (groups.length === 0) {
+    const li = document.createElement("li");
+    li.className = "no-groups";
+    li.textContent = "생성된 모임이 없습니다.";
+    ul.appendChild(li);
+    return;
+  }
 
-    for (const group of groups) {
-      const li = document.createElement("li");
-      li.className = "group-item";
-      const isToday = group.date === today;
+  const today = new Date().toISOString().slice(0, 10);
 
-      li.innerHTML = `
-        <p>📅 ${group.date}</p>
+  for (const group of groups) {
+    const li = document.createElement("li");
+    li.className = "group-item";
+    const isToday = group.date === today;
+
+    const daysLeft = Math.ceil((new Date(group.date) - new Date(today)) / (1000 * 60 * 60 * 24));
+    const diffClass = daysLeft <= 1 ? "days-critical" : daysLeft <= 7 ? "days-warning" : "days-normal";
+    const diffLabel = daysLeft >= 0 ? `D-${daysLeft}` : `D+${Math.abs(daysLeft)}`;
+
+    li.innerHTML = `
+        <p>📅 ${group.date} <span class="days-left ${diffClass}">${diffLabel}</span></p>
         ${PART_LABELS.map(label => {
             const enumKey = PART_LABEL_TO_ENUM[label];
             const c = group.part_counts?.[enumKey] || { admin: 0, member: 0 };
@@ -223,4 +236,14 @@ function bindGroupListToggle() {
     toggleBtn.textContent = isHidden ? "접기" : "모임 불러오기";
     if (isHidden) loadGroups();
   };
+}
+
+function bindGroupSearch() {
+  const input = document.getElementById("group-search");
+  if (!input) return;
+  input.addEventListener("input", () => {
+    const term = input.value.trim();
+    const filtered = allGroups.filter(g => g.date.includes(term));
+    renderGroups(filtered);
+  });
 }
