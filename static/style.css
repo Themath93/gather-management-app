@@ -24,6 +24,20 @@ header, footer {
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+#admin-link-container button {
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--color-primary);
+  color: var(--color-light);
+  cursor: pointer;
+}
+
+#admin-link-container button:hover {
+  background-color: var(--color-primary-dark);
+}
+
 main {
   padding: 2rem;
   max-width: 800px;
