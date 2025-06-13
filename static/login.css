@@ -1,64 +1,76 @@
+/* ===== 전체 배경에 이미지 + 그라디언트 오버레이 ===== */
 body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background: linear-gradient(135deg, var(--color-bg), #fff);
-    margin: 0;
-    font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
-  }
-  
-  .login-container {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 400px;
-  }
-  
-  .login-container h1 {
-    text-align: center;
-    margin-bottom: 1.5rem;
-    font-size: 1.6rem;
-    color: #333;
-  }
-  
-  .login-container label {
-    display: block;
-    margin-top: 1rem;
-    font-weight: bold;
-    color: #555;
-  }
-  
-  .login-container input {
-    width: 100%;
-    padding: 0.5rem;
-    margin-top: 0.3rem;
-    border: 1px solid #ccd0d5;
-    border-radius: 6px;
-    font-size: 1rem;
-  }
-  
-  .login-container button {
-    margin-top: 1.5rem;
-    width: 100%;
-    padding: 0.75rem;
-    background-color: var(--color-primary);
-    color: var(--color-light);
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  /* 그라디언트 위에 배경사진 한 장을 덮어쓰기 */
+  background:
+    linear-gradient(135deg, rgba(255,255,255,0.8), rgba(255,255,255,0.8)),
+    url("/static/images/login-bg.jpg") center/cover no-repeat;
+  margin: 0;
+  font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
+}
 
-  .login-container button:hover {
-    background-color: var(--color-primary-dark);
-  }
-  
-  #result {
-    margin-top: 1rem;
-    text-align: center;
-    color: red;
-  }
+/* ===== 로그인 카드 ===== */
+.login-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;          /* 가운데 정렬 */
+}
+
+/* 새로 추가된 일러스트 이미지 */
+.login-illustration {
+  width: 80%;
+  height: auto;
+  margin-bottom: 1rem;
+}
+
+/* 기존 타이틀·폼·버튼 스타일은 그대로 유지 */
+.login-container h1 {
+  margin-bottom: 1.5rem;
+  font-size: 1.6rem;
+  color: #333;
+}
+
+.login-container label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: bold;
+  color: #555;
+}
+
+.login-container input {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.3rem;
+  border: 1px solid #ccd0d5;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.login-container button {
+  margin-top: 1.5rem;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: var(--color-primary);
+  color: var(--color-light);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.login-container button:hover {
+  background-color: var(--color-primary-dark);
+}
+
+#result {
+  margin-top: 1rem;
+  color: red;
+}
