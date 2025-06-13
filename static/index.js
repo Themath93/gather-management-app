@@ -13,7 +13,6 @@ window.addEventListener("DOMContentLoaded", () => {
   renderAdminLink();
   startClock();
   bindGroupListToggle();
-  bindGroupSearch();
   loadGroups();
   const list = document.getElementById("group-list");
   if (list) list.style.display = "block";
@@ -152,10 +151,7 @@ function renderGroups(groups) {
 
       ul.appendChild(li);
     }
-  } catch (e) {
-    console.error("모임 목록 로딩 실패", e);
   }
-}
 
 async function setAttendance(groupId, apiPart, status, msgElem) {
   const form = new FormData();
@@ -241,16 +237,3 @@ function bindGroupListToggle() {
   };
 }
 
-function bindGroupSearch() {
-  const input = document.getElementById("group-search");
-  if (!input) return;
-  input.addEventListener("input", () => {
-    const term = input.value.trim().replace(/[^0-9]/g, "");
-    if (!term) {
-      renderGroups(allGroups);
-      return;
-    }
-    const filtered = allGroups.filter(g => g.date.replace(/[^0-9]/g, "").includes(term));
-    renderGroups(filtered);
-  });
-}
