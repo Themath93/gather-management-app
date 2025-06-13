@@ -31,10 +31,11 @@ function renderUserInfo() {
 function renderAdminLink() {
   const adminLinkContainer = document.getElementById("admin-link-container");
   if (["운영진", "모임장"].includes(user?.role)) {
-    const btn = document.createElement("a");
-    btn.href = "/admin";
-    btn.textContent = "🔧 관리자 페이지";
-    btn.className = "admin-link";
+    const btn = document.createElement("button");
+    btn.textContent = "어드민 페이지";
+    btn.onclick = () => {
+      window.location.href = "/admin";
+    };
     adminLinkContainer.appendChild(btn);
   }
 }
@@ -233,8 +234,10 @@ function bindGroupListToggle() {
   toggleBtn.onclick = () => {
     const isHidden = list.style.display === "none";
     list.style.display = isHidden ? "block" : "none";
-    toggleBtn.textContent = isHidden ? "접기" : "모임 불러오기";
-    if (isHidden) loadGroups();
+    toggleBtn.textContent = isHidden ? "접기" : "목록 열기";
+    if (isHidden && list.innerHTML.trim() === "") {
+      loadGroups();
+    }
   };
 }
 
@@ -242,8 +245,12 @@ function bindGroupSearch() {
   const input = document.getElementById("group-search");
   if (!input) return;
   input.addEventListener("input", () => {
-    const term = input.value.trim();
-    const filtered = allGroups.filter(g => g.date.includes(term));
+    const term = input.value.trim().replace(/[^0-9]/g, "");
+    if (!term) {
+      renderGroups(allGroups);
+      return;
+    }
+    const filtered = allGroups.filter(g => g.date.replace(/[^0-9]/g, "").includes(term));
     renderGroups(filtered);
   });
 }
